@@ -1,0 +1,20 @@
+name: CI
+on:
+  pull_request:
+
+jobs:
+  build_all:
+    name: Build
+    uses: ./.github/workflows/reusable-build-and-push.yml
+    with:
+      image_tag: ${{ github.sha }}
+      push: false
+
+# We are using the following step to be the status check in the PRs
+  build:
+    needs: build_all
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build All Done
+        run: echo "Done"
