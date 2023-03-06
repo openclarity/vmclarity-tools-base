@@ -28,4 +28,3 @@ WORKDIR /artifacts
 
 COPY --from=builder ["/artifacts/gitleaks", "./gitleaks"]
 COPY --from=builder ["/usr/bin/clamscan", "./clamscan"]
-COPY --from=builder ["/usr/bin/freshclam", "./freshclam"]
