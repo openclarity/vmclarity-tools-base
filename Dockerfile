@@ -16,8 +16,22 @@ RUN sha256sum -c checksums.txt
 # install gitleaks
 RUN tar xzvf gitleaks_8.15.1_linux_x64.tar.gz
 
+# download and extract clamav binaries
+RUN curl -L https://www.clamav.net/downloads/production/clamav-0.104.1.tar.gz --output clamav-0.104.1.tar.gz && \
+    tar xzf clamav-0.104.1.tar.gz && \
+    cd clamav-0.104.1 && \
+    ./configure && \
+    make && \
+    make install
+
+# update virus definitions
+RUN freshclam
+
 FROM alpine:3.16
 
 WORKDIR /artifacts
 
 COPY --from=builder ["/artifacts/gitleaks", "./gitleaks"]
+COPY --from=builder ["/usr/local/bin/clamscan", "./clam"]
+COPY --from=builder ["/usr/local/bin/freshclam", "./clam"]
+
