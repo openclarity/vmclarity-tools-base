@@ -16,12 +16,6 @@ RUN sha256sum -c checksums.txt
 # install gitleaks
 RUN tar xzvf gitleaks_8.15.1_linux_x64.tar.gz
 
-# install clamav
-RUN apt-get install -y clamav
-
-# update virus definitions
-RUN freshclam
-
 FROM alpine:3.16
 
 RUN apk upgrade
