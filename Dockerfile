@@ -25,4 +25,3 @@ RUN freshclam
 WORKDIR /artifacts
 
 COPY --from=builder ["/artifacts/gitleaks", "./gitleaks"]
-COPY --from=builder ["/usr/bin/clamscan", "./clamscan"]
