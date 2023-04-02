@@ -26,7 +26,6 @@ FROM alpine:3.16
 
 RUN apk upgrade
 RUN apk add clamav
-RUN freshclam
 
 WORKDIR /artifacts
 
