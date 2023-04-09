@@ -39,4 +39,4 @@ COPY --from=builder ["/artifacts/gitleaks", "./gitleaks"]
 
 COPY --from=builder ["/artifacts/lynis-3.0.8", "./lynis"]
 
-COPY --from=builder ["/artifacts/chkrootkit-0.57", "./chkrootkit"]
+COPY --from=builder ["/artifacts/chkrootkit-0.57/chkrootkit", "./chkrootkit"]
