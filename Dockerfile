@@ -28,7 +28,7 @@ RUN tar xzvf lynis_3.0.8.tar.gz
 # install chkrootkit
 RUN tar xzvf chkrootkit-0.57.tar.gz
 
-FROM alpine:3.16
+FROM alpine:3.17
 
 RUN apk upgrade
 RUN apk add clamav
