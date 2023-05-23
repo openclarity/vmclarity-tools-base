@@ -1,11 +1,8 @@
 SHELL=/bin/bash
 
 # Project variables
-CONTAINER_NAME ?= vmclarity-tools-base
-VERSION ?= $(shell git rev-parse HEAD)
-DOCKER_REGISTRY ?= ghcr.io/openclarity
-DOCKER_IMAGE ?= $(DOCKER_REGISTRY)/$(CONTAINER_NAME)
-DOCKER_TAG ?= ${VERSION}
+DOCKER_IMAGE ?= ghcr.io/openclarity/vmclarity-tools-base
+DOCKER_TAG ?= $(shell git rev-parse HEAD)
 
 # HELP
 # This will output the help for each task
@@ -18,17 +15,15 @@ help: ## This help.
 
 .PHONY: docker
 docker: ## Build Docker image
-	@(echo "Building docker image...")
-	docker build \
-		--file ./Dockerfile \
-		--build-arg VERSION=${VERSION} \
-		--build-arg BUILD_TIMESTAMP=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ") \
-		--build-arg COMMIT_HASH=$(shell git rev-parse HEAD) \
-		-t ${DOCKER_IMAGE}:${DOCKER_TAG} \
-		.
-
+	$(info "Building docker image...")
+	# build both images
+	docker buildx build --platform=linux/amd64,linux/arm64 -t $(DOCKER_IMAGE):$(DOCKER_TAG) .
+	# load just the current platform
+	# https://github.com/docker/buildx/issues/59#issuecomment-1168619521
+	docker buildx build --load --platform linux/$(shell uname -m) -t $(DOCKER_IMAGE):$(DOCKER_TAG) .
 
 .PHONY: push-docker
 push-docker: docker ## Build and Push Docker image
-	@echo "Publishing docker image..."
-	docker push ${DOCKER_IMAGE}:${DOCKER_TAG}
+	$(info "Publishing docker image...")
+	# push both platforms as one image manifest list
+	docker buildx build --push --platform linux/arm64,linux/amd64 -t $(DOCKER_IMAGE):$(DOCKER_TAG) .
