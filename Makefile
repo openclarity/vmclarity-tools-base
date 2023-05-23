@@ -19,10 +19,13 @@ help: ## This help.
 .PHONY: docker
 docker: ## Build Docker image
 	@(echo "Building docker image...")
-	docker build --file ./Dockerfile --build-arg VERSION=${VERSION} \
+	docker build \
+		--file ./Dockerfile \
+		--build-arg VERSION=${VERSION} \
 		--build-arg BUILD_TIMESTAMP=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ") \
 		--build-arg COMMIT_HASH=$(shell git rev-parse HEAD) \
-		-t ${DOCKER_IMAGE}:${DOCKER_TAG} .
+		-t ${DOCKER_IMAGE}:${DOCKER_TAG} \
+		.
 
 
 .PHONY: push-docker

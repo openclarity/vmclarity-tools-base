@@ -1,4 +1,7 @@
-FROM ubuntu:20.04 AS builder
+FROM --platform=${BUILDPLATFORM:-linux/amd64} ubuntu:20.04 AS builder
+
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
 
 RUN apt-get update && apt-get install -y curl
 
@@ -28,7 +31,7 @@ RUN tar xzvf lynis_3.0.8.tar.gz
 # install chkrootkit
 RUN tar xzvf chkrootkit-0.57.tar.gz
 
-FROM alpine:3.17
+FROM --platform=${TARGETPLATFORM:-linux/amd64} alpine:3.17
 
 RUN apk upgrade
 RUN apk add clamav
