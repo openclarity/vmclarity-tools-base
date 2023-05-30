@@ -15,10 +15,10 @@ help: ## This help.
 
 .PHONY: docker
 docker: ## Build Docker image
-	$(info "Building docker image...")
+	@(echo "Building docker image...")
 	docker buildx build --load -t $(DOCKER_IMAGE):$(DOCKER_TAG) .
 
 .PHONY: push-docker
 push-docker: docker ## Build and Push Docker image
-	$(info "Publishing docker image...")
+	@(echo "Publishing docker image...")
 	docker buildx build --push --platform linux/arm64,linux/amd64 -t $(DOCKER_IMAGE):$(DOCKER_TAG) .
