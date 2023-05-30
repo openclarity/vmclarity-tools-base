@@ -10,16 +10,16 @@ WORKDIR /artifacts
 # copy checksums file
 COPY checksums.txt .
 
-# download gitleaks 8.16.3
+# download gitleaks 8.15.1
 RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; \
     then \
-      curl -sSfL https://github.com/zricethezav/gitleaks/releases/download/v8.16.3/gitleaks_8.16.3_linux_x64.tar.gz \
-        --output gitleaks_8.16.3_linux_x64.tar.gz ; \
+      curl -sSfL https://github.com/zricethezav/gitleaks/releases/download/v8.15.1/gitleaks_8.15.1_linux_x64.tar.gz \
+        --output gitleaks_8.15.1_linux_x64.tar.gz ; \
     fi
 RUN if [ "$TARGETPLATFORM" = "linux/arm64" ]; \
     then \
-      curl -sSfL https://github.com/zricethezav/gitleaks/releases/download/v8.16.3/gitleaks_8.16.3_linux_arm64.tar.gz \
-        --output gitleaks_8.16.3_linux_arm64.tar.gz; \
+      curl -sSfL https://github.com/zricethezav/gitleaks/releases/download/v8.15.1/gitleaks_8.15.1_linux_arm64.tar.gz \
+        --output gitleaks_8.15.1_linux_arm64.tar.gz; \
     fi
 
 # download lynis 3.0.8
@@ -32,8 +32,8 @@ RUN curl -sSf ftp://ftp.chkrootkit.org/pub/seg/pac/chkrootkit-0.57.tar.gz --outp
 RUN sha256sum -c checksums.txt --ignore-missing
 
 # install gitleaks
-RUN if [ "$TARGETPLATFORM" = "linux/amd64" ] ; then tar xzvf gitleaks_8.16.3_linux_x64.tar.gz ; fi
-RUN if [ "$TARGETPLATFORM" = "linux/arm64" ] ; then tar xzvf gitleaks_8.16.3_linux_arm64.tar.gz ; fi
+RUN if [ "$TARGETPLATFORM" = "linux/amd64" ] ; then tar xzvf gitleaks_8.15.1_linux_x64.tar.gz ; fi
+RUN if [ "$TARGETPLATFORM" = "linux/arm64" ] ; then tar xzvf gitleaks_8.15.1_linux_arm64.tar.gz ; fi
 
 # install lynis
 RUN tar xzvf lynis_3.0.8.tar.gz
