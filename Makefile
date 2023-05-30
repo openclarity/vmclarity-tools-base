@@ -16,14 +16,9 @@ help: ## This help.
 .PHONY: docker
 docker: ## Build Docker image
 	$(info "Building docker image...")
-	# build both images
-	docker buildx build --platform=linux/amd64,linux/arm64 -t $(DOCKER_IMAGE):$(DOCKER_TAG) .
-	# load just the current platform
-	# https://github.com/docker/buildx/issues/59#issuecomment-1168619521
-	docker buildx build --load --platform linux/$(shell uname -m) -t $(DOCKER_IMAGE):$(DOCKER_TAG) .
+	docker buildx build --load -t $(DOCKER_IMAGE):$(DOCKER_TAG) .
 
 .PHONY: push-docker
 push-docker: docker ## Build and Push Docker image
 	$(info "Publishing docker image...")
-	# push both platforms as one image manifest list
 	docker buildx build --push --platform linux/arm64,linux/amd64 -t $(DOCKER_IMAGE):$(DOCKER_TAG) .
