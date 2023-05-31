@@ -16,9 +16,9 @@ help: ## This help.
 .PHONY: docker
 docker: ## Build Docker image
 	@(echo "Building docker image...")
-	docker buildx build --load -t $(DOCKER_IMAGE):$(DOCKER_TAG) .
+	docker build -t $(DOCKER_IMAGE):$(DOCKER_TAG) .
 
-.PHONY: push-docker
-push-docker: docker ## Build and Push Docker image
+.PHONY: build-and-push-docker
+build-and-push-docker: ## Build and Push Docker image
 	@(echo "Publishing docker image...")
 	docker buildx build --push --platform linux/arm64,linux/amd64 -t $(DOCKER_IMAGE):$(DOCKER_TAG) .
