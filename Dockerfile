@@ -1,4 +1,7 @@
-FROM ubuntu:20.04 AS builder
+FROM --platform=${BUILDPLATFORM:-linux/amd64} ubuntu:20.04 AS builder
+
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
 
 RUN apt-get update && apt-get install -y curl
 
@@ -8,19 +11,29 @@ WORKDIR /artifacts
 COPY checksums.txt .
 
 # download gitleaks 8.15.1
-RUN curl -L https://github.com/zricethezav/gitleaks/releases/download/v8.15.1/gitleaks_8.15.1_linux_x64.tar.gz --output gitleaks_8.15.1_linux_x64.tar.gz
+RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; \
+    then \
+      curl -sSfL https://github.com/zricethezav/gitleaks/releases/download/v8.15.1/gitleaks_8.15.1_linux_x64.tar.gz \
+        --output gitleaks_8.15.1_linux_x64.tar.gz ; \
+    fi
+RUN if [ "$TARGETPLATFORM" = "linux/arm64" ]; \
+    then \
+      curl -sSfL https://github.com/zricethezav/gitleaks/releases/download/v8.15.1/gitleaks_8.15.1_linux_arm64.tar.gz \
+        --output gitleaks_8.15.1_linux_arm64.tar.gz; \
+    fi
 
 # download lynis 3.0.8
-RUN curl -L https://github.com/CISOfy/lynis/archive/refs/tags/3.0.8.tar.gz --output lynis_3.0.8.tar.gz
+RUN curl -sSfL https://github.com/CISOfy/lynis/archive/refs/tags/3.0.8.tar.gz --output lynis_3.0.8.tar.gz
 
 # download chkrootkit 0.57
-RUN curl ftp://ftp.chkrootkit.org/pub/seg/pac/chkrootkit-0.57.tar.gz --output chkrootkit-0.57.tar.gz
+RUN curl -sSf ftp://ftp.chkrootkit.org/pub/seg/pac/chkrootkit-0.57.tar.gz --output chkrootkit-0.57.tar.gz
 
 # validate checksums
-RUN sha256sum -c checksums.txt
+RUN sha256sum -c checksums.txt --ignore-missing
 
 # install gitleaks
-RUN tar xzvf gitleaks_8.15.1_linux_x64.tar.gz
+RUN if [ "$TARGETPLATFORM" = "linux/amd64" ] ; then tar xzvf gitleaks_8.15.1_linux_x64.tar.gz ; fi
+RUN if [ "$TARGETPLATFORM" = "linux/arm64" ] ; then tar xzvf gitleaks_8.15.1_linux_arm64.tar.gz ; fi
 
 # install lynis
 RUN tar xzvf lynis_3.0.8.tar.gz
@@ -28,7 +41,7 @@ RUN tar xzvf lynis_3.0.8.tar.gz
 # install chkrootkit
 RUN tar xzvf chkrootkit-0.57.tar.gz
 
-FROM alpine:3.17
+FROM --platform=${TARGETPLATFORM:-linux/amd64} alpine:3.17
 
 RUN apk upgrade
 RUN apk add clamav

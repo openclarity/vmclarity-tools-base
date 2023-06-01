@@ -41,12 +41,12 @@ possible, and, if possible, a test case.
 
 `make docker` can be used to build the vmclarity-tools-base container.
 
-`make push-docker` is also provided as a shortcut for building and then
+`make build-and-push-docker` is also provided as a shortcut for building and then
 publishing the vmclarity-tools-base container to a registry. You can override the
 destination registry like:
 
 ```
-DOCKER_REGISTRY=docker.io/tehsmash make push-docker
+DOCKER_IMAGE=docker.io/tehsmash make build-and-push-docker
 ```
 
 You must be logged into the docker registry locally before using this target.
