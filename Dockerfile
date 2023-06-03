@@ -1,9 +1,10 @@
-FROM --platform=${BUILDPLATFORM:-linux/amd64} alpine:20.04 AS builder
+FROM --platform=${BUILDPLATFORM:-linux/amd64} alpine:3.17 AS builder
 
 ARG TARGETPLATFORM
 ARG BUILDPLATFORM
 
-RUN apt-get update && apt-get install -y curl
+RUN apk upgrade
+RUN apk --no-cache add curl coreutils
 
 WORKDIR /artifacts
 
