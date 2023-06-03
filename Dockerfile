@@ -1,4 +1,4 @@
-FROM --platform=${BUILDPLATFORM:-linux/amd64} ubuntu:20.04 AS builder
+FROM --platform=${BUILDPLATFORM:-linux/amd64} alpine:20.04 AS builder
 
 ARG TARGETPLATFORM
 ARG BUILDPLATFORM

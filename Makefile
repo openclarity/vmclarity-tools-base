@@ -1,8 +1,11 @@
 SHELL=/bin/bash
 
 # Project variables
-DOCKER_IMAGE ?= ghcr.io/openclarity/vmclarity-tools-base
-DOCKER_TAG ?= $(shell git rev-parse HEAD)
+CONTAINER_NAME ?= vmclarity-tools-base
+VERSION ?= $(shell git rev-parse HEAD)
+DOCKER_REGISTRY ?= ghcr.io/openclarity
+DOCKER_IMAGE ?= $(DOCKER_REGISTRY)/$(CONTAINER_NAME)
+DOCKER_TAG ?= ${VERSION}
 
 # HELP
 # This will output the help for each task
@@ -18,7 +21,7 @@ docker: ## Build Docker image
 	@(echo "Building docker image...")
 	docker build -t $(DOCKER_IMAGE):$(DOCKER_TAG) .
 
-.PHONY: build-and-push-docker
-build-and-push-docker: ## Build and Push Docker image
+.PHONY: push-docker
+push-docker: docker ## Build and Push Docker image
 	@(echo "Publishing docker image...")
-	docker buildx build --push --platform linux/arm64,linux/amd64 -t $(DOCKER_IMAGE):$(DOCKER_TAG) .
+	docker push $(DOCKER_IMAGE):$(DOCKER_TAG)
