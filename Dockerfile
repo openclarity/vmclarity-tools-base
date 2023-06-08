@@ -1,7 +1,4 @@
-FROM --platform=${BUILDPLATFORM:-linux/amd64} ubuntu:20.04 AS builder
-
-ARG TARGETPLATFORM
-ARG BUILDPLATFORM
+FROM --platform=$BUILDPLATFORM ubuntu:20.04 AS builder
 
 RUN apt-get update && apt-get install -y curl
 
@@ -9,6 +6,8 @@ WORKDIR /artifacts
 
 # copy checksums file
 COPY checksums.txt .
+
+ARG TARGETPLATFORM
 
 # download gitleaks 8.15.1
 RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; \
@@ -41,7 +40,7 @@ RUN tar xzvf lynis_3.0.8.tar.gz
 # install chkrootkit
 RUN tar xzvf chkrootkit-0.57.tar.gz
 
-FROM --platform=${TARGETPLATFORM:-linux/amd64} alpine:3.17
+FROM alpine:3.17
 
 RUN apk upgrade
 RUN apk add clamav
