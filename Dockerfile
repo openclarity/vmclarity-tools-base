@@ -1,6 +1,6 @@
 FROM --platform=$BUILDPLATFORM ubuntu:20.04 AS builder
 
-RUN apt-get update && apt-get install -y curl
+RUN apt-get update && apt-get install -y curl unzip
 
 WORKDIR /artifacts
 
@@ -44,6 +44,7 @@ FROM alpine:3.17
 
 RUN apk upgrade
 RUN apk add clamav
+RUN apk add --update yara --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing
 
 WORKDIR /artifacts
 
