@@ -44,6 +44,7 @@ FROM alpine:3.17
 
 RUN apk upgrade
 RUN apk add clamav
+RUN apk add openssh
 
 WORKDIR /artifacts
 
