@@ -1,6 +1,6 @@
 FROM --platform=$BUILDPLATFORM ubuntu:20.04 AS builder
 
-RUN apt-get update && apt-get install -y curl unzip
+RUN apt-get update && apt-get install -y curl
 
 WORKDIR /artifacts
 
