@@ -7,16 +7,20 @@ WORKDIR /artifacts
 
 ARG TARGETPLATFORM
 
-RUN --mount=type=bind,source=checksums.txt,target=checksums.txt <<EOT
+RUN <<EOT
   set -e
 
+  version=8.18.0
   url=
+  checksum=
   case "$TARGETPLATFORM" in
     "linux/amd64")
-      url=https://github.com/zricethezav/gitleaks/releases/download/v8.15.1/gitleaks_8.15.1_linux_x64.tar.gz
+      url=https://github.com/zricethezav/gitleaks/releases/download/v${version}/gitleaks_${version}_linux_x64.tar.gz
+      checksum=6e19050a3ee0688265ed3be4c46a0362487d20456ecd547e8c7328eaed3980cb
       ;;
     "linux/arm64")
-      url=https://github.com/zricethezav/gitleaks/releases/download/v8.15.1/gitleaks_8.15.1_linux_arm64.tar.gz
+      url=https://github.com/zricethezav/gitleaks/releases/download/v${version}/gitleaks_${version}_linux_arm64.tar.gz
+      checksum=c19c2af7087e1c2bd502f85ae92e6477133fc43ce17f5ea09f63ebda6e3da0be
       ;;
     *)
       printf "ERROR: %s" "invalid architecture"
@@ -27,7 +31,7 @@ RUN --mount=type=bind,source=checksums.txt,target=checksums.txt <<EOT
 
   wget -q -O "${archive}" "${url}"
 
-  grep "${archive}" checksums.txt | sha256sum -c -
+  printf "%s %s" "${checksum}" "${archive}" | sha256sum -c -
 
   tar xzvf "${archive}"
 EOT
@@ -39,17 +43,21 @@ WORKDIR /artifacts
 
 ARG TARGETPLATFORM
 
-RUN --mount=type=bind,source=checksums.txt,target=checksums.txt <<EOT
+RUN <<EOT
   set -e
 
-  url="https://github.com/CISOfy/lynis/archive/refs/tags/3.0.8.tar.gz"
+  version=3.0.9
+  url="https://github.com/CISOfy/lynis/archive/refs/tags/${version}.tar.gz"
+  checksum=520eb76aee5d350c2a7265414bae302077cd70ed5a0aaf61dec9e43a968b1727
+
   archive="lynis_$(basename ${url})"
 
   wget -q -O "${archive}" "${url}"
 
-  grep "${archive}" checksums.txt | sha256sum -c -
+  printf "%s %s" "${checksum}" "${archive}" | sha256sum -c -
 
-  tar xzvf "${archive}"
+  mkdir -p lynis
+  tar xzvf "${archive}" -C lynis --strip-components 1
 EOT
 
 # Download chkrootkit
@@ -59,17 +67,20 @@ WORKDIR /artifacts
 
 ARG TARGETPLATFORM
 
-RUN --mount=type=bind,source=checksums.txt,target=checksums.txt <<EOT
+RUN <<EOT
   set -e
 
-  url="ftp://ftp.chkrootkit.org/pub/seg/pac/chkrootkit-0.57.tar.gz"
+  version=0.58b
+  url="ftp://ftp.chkrootkit.org/pub/seg/pac/chkrootkit-${version}.tar.gz"
+  checksum=de110f07f37b1b5caff2e90cc6172dd8
+
   archive="$(basename ${url})"
 
   wget -q -O "${archive}" "${url}"
 
-  grep "${archive}" checksums.txt | sha256sum -c -
+  printf "%s %s" "${checksum}" "${archive}" | md5sum -c -
 
-  tar xzvf "${archive}"
+  tar xzvf "${archive}" --strip-components 1
 EOT
 
 FROM alpine:3.18@sha256:eece025e432126ce23f223450a0326fbebde39cdf496a85d8c016293fc851978
@@ -82,8 +93,8 @@ RUN apk add --no-cache yara --repository=https://dl-cdn.alpinelinux.org/alpine/e
 RUN apk add --no-cache openssh
 
 COPY --from=gitleaks ["/artifacts/gitleaks", "./gitleaks"]
-COPY --from=lynis ["/artifacts/lynis-3.0.8", "./lynis"]
-COPY --from=chkrootkit ["/artifacts/chkrootkit-0.57/chkrootkit", "./chkrootkit"]
+COPY --from=lynis ["/artifacts/lynis", "./lynis"]
+COPY --from=chkrootkit ["/artifacts/chkrootkit", "./chkrootkit"]
 
 RUN <<EOT
   set -e
