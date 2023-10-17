@@ -49,7 +49,8 @@ RUN --mount=type=bind,source=checksums.txt,target=checksums.txt <<EOT
 
   grep "${archive}" checksums.txt | sha256sum -c -
 
-  tar xzvf "${archive}"
+  mkdir -p lynis
+  tar xzvf "${archive}" -C lynis --strip-components 1
 EOT
 
 # Download chkrootkit
@@ -69,7 +70,7 @@ RUN --mount=type=bind,source=checksums.txt,target=checksums.txt <<EOT
 
   grep "${archive}" checksums.txt | sha256sum -c -
 
-  tar xzvf "${archive}"
+  tar xzvf "${archive}" --strip-components 1
 EOT
 
 FROM alpine:3.18@sha256:eece025e432126ce23f223450a0326fbebde39cdf496a85d8c016293fc851978
@@ -82,8 +83,8 @@ RUN apk add --no-cache yara --repository=https://dl-cdn.alpinelinux.org/alpine/e
 RUN apk add --no-cache openssh
 
 COPY --from=gitleaks ["/artifacts/gitleaks", "./gitleaks"]
-COPY --from=lynis ["/artifacts/lynis-3.0.8", "./lynis"]
-COPY --from=chkrootkit ["/artifacts/chkrootkit-0.57/chkrootkit", "./chkrootkit"]
+COPY --from=lynis ["/artifacts/lynis", "./lynis"]
+COPY --from=chkrootkit ["/artifacts/chkrootkit", "./chkrootkit"]
 
 RUN <<EOT
   set -e
