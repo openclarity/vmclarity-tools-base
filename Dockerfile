@@ -1,56 +1,100 @@
-FROM --platform=$BUILDPLATFORM ubuntu:20.04 AS builder
+# syntax=docker/dockerfile:1
 
-RUN apt-get update && apt-get install -y curl
+# Download gitleaks
+FROM --platform=$BUILDPLATFORM alpine:3.18@sha256:eece025e432126ce23f223450a0326fbebde39cdf496a85d8c016293fc851978 AS gitleaks
 
 WORKDIR /artifacts
-
-# copy checksums file
-COPY checksums.txt .
 
 ARG TARGETPLATFORM
 
-# download gitleaks 8.15.1
-RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; \
-    then \
-      curl -sSfL https://github.com/zricethezav/gitleaks/releases/download/v8.15.1/gitleaks_8.15.1_linux_x64.tar.gz \
-        --output gitleaks_8.15.1_linux_x64.tar.gz ; \
-    fi
-RUN if [ "$TARGETPLATFORM" = "linux/arm64" ]; \
-    then \
-      curl -sSfL https://github.com/zricethezav/gitleaks/releases/download/v8.15.1/gitleaks_8.15.1_linux_arm64.tar.gz \
-        --output gitleaks_8.15.1_linux_arm64.tar.gz; \
-    fi
+RUN --mount=type=bind,source=checksums.txt,target=checksums.txt <<EOT
+  set -e
 
-# download lynis 3.0.8
-RUN curl -sSfL https://github.com/CISOfy/lynis/archive/refs/tags/3.0.8.tar.gz --output lynis_3.0.8.tar.gz
+  url=
+  case "$TARGETPLATFORM" in
+    "linux/amd64")
+      url=https://github.com/zricethezav/gitleaks/releases/download/v8.15.1/gitleaks_8.15.1_linux_x64.tar.gz
+      ;;
+    "linux/arm64")
+      url=https://github.com/zricethezav/gitleaks/releases/download/v8.15.1/gitleaks_8.15.1_linux_arm64.tar.gz
+      ;;
+    *)
+      printf "ERROR: %s" "invalid architecture"
+      exit 1
+  esac
 
-# download chkrootkit 0.57
-RUN curl -sSf ftp://ftp.chkrootkit.org/pub/seg/pac/chkrootkit-0.57.tar.gz --output chkrootkit-0.57.tar.gz
+  archive="$(basename ${url})"
 
-# validate checksums
-RUN sha256sum -c checksums.txt --ignore-missing
+  wget -q -O "${archive}" "${url}"
 
-# install gitleaks
-RUN if [ "$TARGETPLATFORM" = "linux/amd64" ] ; then tar xzvf gitleaks_8.15.1_linux_x64.tar.gz ; fi
-RUN if [ "$TARGETPLATFORM" = "linux/arm64" ] ; then tar xzvf gitleaks_8.15.1_linux_arm64.tar.gz ; fi
+  grep "${archive}" checksums.txt | sha256sum -c -
 
-# install lynis
-RUN tar xzvf lynis_3.0.8.tar.gz
+  tar xzvf "${archive}"
+EOT
 
-# install chkrootkit
-RUN tar xzvf chkrootkit-0.57.tar.gz
-
-FROM alpine:3.18
-
-RUN apk upgrade
-RUN apk add clamav
-RUN apk add --update yara --repository=https://dl-cdn.alpinelinux.org/alpine/edge/testing
-RUN apk add openssh
+# Download lynis
+FROM --platform=$BUILDPLATFORM alpine:3.18@sha256:eece025e432126ce23f223450a0326fbebde39cdf496a85d8c016293fc851978 AS lynis
 
 WORKDIR /artifacts
 
-COPY --from=builder ["/artifacts/gitleaks", "./gitleaks"]
+ARG TARGETPLATFORM
 
-COPY --from=builder ["/artifacts/lynis-3.0.8", "./lynis"]
+RUN --mount=type=bind,source=checksums.txt,target=checksums.txt <<EOT
+  set -e
 
-COPY --from=builder ["/artifacts/chkrootkit-0.57/chkrootkit", "./chkrootkit"]
+  url="https://github.com/CISOfy/lynis/archive/refs/tags/3.0.8.tar.gz"
+  archive="lynis_$(basename ${url})"
+
+  wget -q -O "${archive}" "${url}"
+
+  grep "${archive}" checksums.txt | sha256sum -c -
+
+  tar xzvf "${archive}"
+EOT
+
+# Download chkrootkit
+FROM --platform=$BUILDPLATFORM alpine:3.18@sha256:eece025e432126ce23f223450a0326fbebde39cdf496a85d8c016293fc851978 AS chkrootkit
+
+WORKDIR /artifacts
+
+ARG TARGETPLATFORM
+
+RUN --mount=type=bind,source=checksums.txt,target=checksums.txt <<EOT
+  set -e
+
+  url="ftp://ftp.chkrootkit.org/pub/seg/pac/chkrootkit-0.57.tar.gz"
+  archive="$(basename ${url})"
+
+  wget -q -O "${archive}" "${url}"
+
+  grep "${archive}" checksums.txt | sha256sum -c -
+
+  tar xzvf "${archive}"
+EOT
+
+FROM alpine:3.18@sha256:eece025e432126ce23f223450a0326fbebde39cdf496a85d8c016293fc851978
+
+WORKDIR /opt
+
+RUN apk upgrade --no-cache --quiet
+RUN apk add --no-cache clamav
+RUN apk add --no-cache yara --repository=https://dl-cdn.alpinelinux.org/alpine/edge/testing
+RUN apk add --no-cache openssh
+
+COPY --from=gitleaks ["/artifacts/gitleaks", "./gitleaks"]
+COPY --from=lynis ["/artifacts/lynis-3.0.8", "./lynis"]
+COPY --from=chkrootkit ["/artifacts/chkrootkit-0.57/chkrootkit", "./chkrootkit"]
+
+RUN <<EOT
+  set -e
+
+  # Install chkrootkit
+  ln -s /opt/chkrootkit /bin/chkrootkit
+
+  # Install gitleaks
+  ln -s /opt/gitleaks /bin/gitleaks
+
+  # Install lynis
+  ln -s /opt/lynis /usr/local/lynis
+  ln -s /opt/lynis/lynis /bin/lynis
+EOT
