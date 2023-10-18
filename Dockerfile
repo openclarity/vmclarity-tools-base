@@ -91,6 +91,8 @@ RUN apk upgrade --no-cache --quiet
 RUN apk add --no-cache clamav
 RUN apk add --no-cache yara --repository=https://dl-cdn.alpinelinux.org/alpine/edge/testing
 RUN apk add --no-cache openssh
+RUN apk add --no-cache git  # required by gitleaks
+RUN apk add --no-cache grep # required by lynis
 
 COPY --from=gitleaks ["/artifacts/gitleaks", "./gitleaks"]
 COPY --from=lynis ["/artifacts/lynis", "./lynis"]
