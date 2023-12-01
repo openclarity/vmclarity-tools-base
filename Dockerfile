@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # Download gitleaks
-FROM --platform=$BUILDPLATFORM alpine:3.18@sha256:eece025e432126ce23f223450a0326fbebde39cdf496a85d8c016293fc851978 AS gitleaks
+FROM --platform=$BUILDPLATFORM alpine:3.18@sha256:34871e7290500828b39e22294660bee86d966bc0017544e848dd9a255cdf59e0 AS gitleaks
 
 WORKDIR /artifacts
 
@@ -37,7 +37,7 @@ RUN <<EOT
 EOT
 
 # Download lynis
-FROM --platform=$BUILDPLATFORM alpine:3.18@sha256:eece025e432126ce23f223450a0326fbebde39cdf496a85d8c016293fc851978 AS lynis
+FROM --platform=$BUILDPLATFORM alpine:3.18@sha256:34871e7290500828b39e22294660bee86d966bc0017544e848dd9a255cdf59e0 AS lynis
 
 WORKDIR /artifacts
 
@@ -61,7 +61,7 @@ RUN <<EOT
 EOT
 
 # Download chkrootkit
-FROM --platform=$BUILDPLATFORM alpine:3.18@sha256:eece025e432126ce23f223450a0326fbebde39cdf496a85d8c016293fc851978 AS chkrootkit
+FROM --platform=$BUILDPLATFORM alpine:3.18@sha256:34871e7290500828b39e22294660bee86d966bc0017544e848dd9a255cdf59e0 AS chkrootkit
 
 WORKDIR /artifacts
 
@@ -83,7 +83,7 @@ RUN <<EOT
   tar xzvf "${archive}" --strip-components 1
 EOT
 
-FROM alpine:3.18@sha256:eece025e432126ce23f223450a0326fbebde39cdf496a85d8c016293fc851978
+FROM alpine:3.18@sha256:34871e7290500828b39e22294660bee86d966bc0017544e848dd9a255cdf59e0
 
 WORKDIR /opt
 
