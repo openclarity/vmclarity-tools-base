@@ -10,17 +10,17 @@ ARG TARGETPLATFORM
 RUN <<EOT
   set -e
 
-  version=8.18.0
+  version=8.18.2
   url=
   checksum=
   case "$TARGETPLATFORM" in
     "linux/amd64")
       url=https://github.com/zricethezav/gitleaks/releases/download/v${version}/gitleaks_${version}_linux_x64.tar.gz
-      checksum=6e19050a3ee0688265ed3be4c46a0362487d20456ecd547e8c7328eaed3980cb
+      checksum=6298c9235dfc9278c14b28afd9b7fa4e6f4a289cb1974bd27949fc1e9122bdee
       ;;
     "linux/arm64")
       url=https://github.com/zricethezav/gitleaks/releases/download/v${version}/gitleaks_${version}_linux_arm64.tar.gz
-      checksum=c19c2af7087e1c2bd502f85ae92e6477133fc43ce17f5ea09f63ebda6e3da0be
+      checksum=4df25683f95b9e1dbb8cc71dac74d10067b8aba221e7f991e01cafa05bcbd030
       ;;
     *)
       printf "ERROR: %s" "invalid architecture"
