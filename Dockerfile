@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1
+# syntax=docker/dockerfile:1@sha256:ac85f380a63b13dfcefa89046420e1781752bab202122f8f50032edf31be0021
 
 # Download gitleaks
 FROM --platform=$BUILDPLATFORM alpine:3.19@sha256:c5b1261d6d3e43071626931fc004f70149baeba2c8ec672bd4f27761f8e1ad6b AS gitleaks
@@ -88,8 +88,8 @@ FROM alpine:3.19@sha256:c5b1261d6d3e43071626931fc004f70149baeba2c8ec672bd4f27761
 WORKDIR /opt
 
 RUN apk upgrade --no-cache --quiet
-RUN apk add --no-cache clamav
-RUN apk add --no-cache yara --repository=https://dl-cdn.alpinelinux.org/alpine/edge/testing
+RUN apk add --no-cache clamav=1.2.2-r0
+RUN apk add --no-cache --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community yara=4.5.0-r0
 RUN apk add --no-cache openssh
 RUN apk add --no-cache git  # required by gitleaks
 RUN apk add --no-cache grep # required by lynis
