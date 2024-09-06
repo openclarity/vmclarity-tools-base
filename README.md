@@ -1,3 +1,10 @@
+> [!IMPORTANT]
+> VMClarity has been deprecated and succeeded by [openclarity/openclarity](https://github.com/openclarity/openclarity).
+>
+> See this [post](post) for changes and migration steps.
+> 
+> **This project does not receive updates. We encourage you to migrate.**
+
 # VMClarity Tools Base
 
 Base container image which includes all the tools required by the VMClarity
